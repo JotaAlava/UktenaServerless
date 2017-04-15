@@ -16,7 +16,7 @@ service: uktena # NOTE: update this with your service name
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
 # frameworkVersion: "=X.X.X"
-
+custom: ${file(./ENV.yml)}
 provider:
   name: aws
   runtime: nodejs4.3
@@ -34,6 +34,10 @@ provider:
         Action: # Gives permission to Lambda in a specific region
           - lambda:*
         Resource: "arn:aws:lambda:us-east-1:*:*"
+  environment:
+        AUTH0_SECRET: ${self:custom.AUTH0_SECRET}
+        DOMAIN: ${self:custom.DOMAIN}
+        region: ${self:custom.region}
   defaultStage: dev
 
 # you can overwrite defaults here
@@ -76,6 +80,9 @@ functions:
                 path: tomato
                 method: get
                 integration: lambda
+                authorizer:
+                  arn: arn:aws:lambda:us-east-1:014951972737:function:uktena-dev-verifyToken
+                  identitySource: method.request.header.Authorization
             - http:
                 path: tomato
                 method: post
