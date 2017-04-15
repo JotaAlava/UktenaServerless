@@ -30,8 +30,8 @@ function CrudSvc(repo, preOps) {
 
     repo.get(options)
       .then(function (data) {
-        RESPONSE.OK.data = data;
-        callback(null, RESPONSE.OK);
+        var items = data.Items.length === 1 ? data.Items[0] : data.Items;
+        callback(null, items);
       }, function (err) {
         RESPONSE.ERROR.err = err;
         callback(null, RESPONSE.ERROR);
@@ -66,8 +66,7 @@ function CrudSvc(repo, preOps) {
 
     repo.delete(options)
       .then(function (data) {
-        RESPONSE.OK.data = data;
-        callback(null, RESPONSE.OK);
+        callback(null, data);
       }, function (err) {
         RESPONSE.ERROR.err = err;
         callback(null, RESPONSE.ERROR);
@@ -102,7 +101,8 @@ function CrudSvc(repo, preOps) {
 
     repo.add(options)
       .then(function (data) {
-        callback(null, [data.attrs]);
+        var resultSet = data.hasOwnProperty('attrs') ? data.attrs : data;
+        callback(null, resultSet);
       }, function (err) {
         RESPONSE.ERROR.err = err;
         callback(null, RESPONSE.ERROR);
@@ -137,7 +137,7 @@ function CrudSvc(repo, preOps) {
 
     repo.set(options)
       .then(function (data) {
-        callback(null, RESPONSE.OK);
+        callback(null, data);
       }, function (err) {
         RESPONSE.ERROR.err = err;
         callback(null, RESPONSE.ERROR);
