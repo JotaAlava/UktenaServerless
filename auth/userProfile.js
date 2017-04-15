@@ -9,6 +9,9 @@ var env = require('../config');
 
 function getUserProfile(authToken) {
     console.log('Get user profile');
+    console.log(env.region);
+    console.log(env.AUTH0_SECRET);
+    console.log(env.DOMAIN);
     var secretBuffer = new Buffer(env.AUTH0_SECRET, 'base64');
     var domain = env.DOMAIN;
 
