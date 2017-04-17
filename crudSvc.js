@@ -1,7 +1,7 @@
 /**
  * Created by jalava on 3/21/2017.
  */
-function CrudSvc(repo, preOps) {
+function CrudSvc(repo, preOps, postOps) {
   var get = (event, context, callback) => {
     const RESPONSE = {
       OK: {
@@ -30,8 +30,15 @@ function CrudSvc(repo, preOps) {
 
     repo.get(options)
       .then(function (data) {
-        var items = data.Items.length === 1 ? data.Items[0] : data.Items;
-        callback(null, items);
+        var result;
+
+        if (postOps && postOps.hasOwnProperty('get')) {
+          result = postOps.get(data)
+        } else {
+          result = data;
+        }
+        
+        callback(null, result);
       }, function (err) {
         RESPONSE.ERROR.err = err;
         callback(null, RESPONSE.ERROR);

@@ -4,7 +4,8 @@
 'use strict';
 var Promise = require('bluebird');
 var aws = require('aws-sdk');
-aws.config.update({region: 'us-east-1'});
+var config = require('./config');
+aws.config.update({region: config.region});
 var db = new aws.DynamoDB.DocumentClient();
 Promise.promisifyAll(Object.getPrototypeOf(db));
 
