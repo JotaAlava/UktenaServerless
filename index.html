@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <title>Mythological Productivity</title>
+    <link rel="shortcut icon" href='https://cdn4.iconfinder.com/data/icons/new-seo-bussiness-set14/1024/Increase_Productivity-01-128.png' />
+
+    <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u' crossorigin='anonymous'>
+</head>
+<body>
+<div id='app'>
+    <br/>
+    <!-- Page Content -->
+    <div class='container-fluid'>
+
+        <!-- Marketing Icons Section -->
+        <div class='row'>
+            <div class='col-lg-12'>
+                <h1 class='page-header'>
+                    <span>Uktena <sup><em style='font-size: 12px;'>Mythological Productivity</em></sup></span>
+                </h1>
+            </div>
+            <div class='col-md-4'>
+                <div class='panel panel-default'>
+                    <div class='row'>
+                        <div class='col s12 center-align' style='margin-top: 15%'>
+                            <h1 class='text-center' style='font-size: 5rem'>
+                                {{timeLeft | time}}
+                            </h1>
+                        </div>
+                    </div>
+                    <div class='row'>
+                        <div class='col-md-12 text-center'>
+                            <div class='col-md-12'>
+                                <button type='submit' class='btn btn-primary btn-xs small-font'
+                                        v-on:click='startTimer'>
+                                    Start
+                                </button>
+                                <button type='submit' class='btn btn-danger btn-xs small-font' v-on:click='stopTimer'>
+                                    Stop
+                                </button>
+                            </div>
+                            <hr/>
+                            <div class='col-md-12'>
+                                <button type='submit' class='btn btn-success btn-xs small-font'
+                                        v-on:click='setTimerLength(shortBreak)'>Short Break
+                                </button>
+                                <button type='submit' class='btn btn-success btn-xs small-font'
+                                        v-on:click='setTimerLength(longBreak)'>Long Break
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='col-md-4'>
+                <div class='panel panel-default'>
+                    <div class='panel-heading'>
+                        <h4><i class='fa fa-fw fa-gift'></i>Tomatoes</h4>
+                    </div>
+                    <div class='panel-body'>
+                        <div>
+                            <div class='form-group'>
+                                <label>Description:</label>
+                                <input type='text' class='form-control' placeholder='Accomplishments go here...'>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>
+                            <table class='table table-striped'>
+                                <tbody v-for='tomato in tomatoes'>
+                                    <tr>
+                                        <td>{{tomato.createdAt | date}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>{{tomato.description}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='col-md-4'>
+                <div class='panel panel-default'>
+                    <div class='panel-heading'>
+                        <h4><i class='fa fa-fw fa-compass'></i>User Info</h4>
+                    </div>
+                    <div class='panel-body'>
+                        <form>
+                            <div class='form-group row' v-if='isLoggedIn'>
+                                <div class='offset-sm-2 col-sm-10'>
+                                    <strong>Username: </strong>
+                                    <span>{{profileNickname}}</span>
+                                    <br/>
+                                    <img id='user-img'
+                                         v-bind:src='profilePicture'
+                                         style='border-radius: 400px;' alt='User' width='150' height='115'>
+                                </div>
+                            </div>
+                            <div class='form-group row' v-else>
+                                <div class='offset-sm-2 col-sm-10'>
+                                    <button v-on:click='login' type='button' class='btn btn-primary'>Sign in</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.container -->
+</div>
+<script src='https://cdn.auth0.com/js/lock/10.14.0/lock.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js'></script>
+<script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
+<script>
+    var lock;
+    document.addEventListener('DOMContentLoaded', function (event) {
+        lock = new Auth0Lock(
+                'wVR4cnGvSn57F6sqFCjIj4ct7fAJEoYn',
+                'jota85.auth0.com'
+        );
+
+        lock.on('authenticated', function (authResult) {
+            lock.getUserInfo(authResult.accessToken, function (error, profile) {
+                if (error) {
+                    return;
+                }
+
+                localStorage.setItem('accessToken', authResult.accessToken);
+                localStorage.setItem('profile', JSON.stringify(profile));
+            });
+        });
+
+        var app = new Vue({
+            el: '#app',
+            filters: {
+                time: function (milliseconds) {
+                    milliseconds = milliseconds / 1000;
+
+                    var numminutes = Math.floor((((milliseconds % 31536000) % 86400) % 3600) / 60);
+                    var numseconds = (((milliseconds % 31536000) % 86400) % 3600) % 60;
+
+                    if (numseconds >= 0 && numseconds < 10) numseconds = '0' + numseconds;
+                    if (numminutes >= 0 && numminutes < 10) numminutes = '0' + numminutes;
+
+                    return numminutes + ':' + numseconds;
+                },
+                date: function (string) {
+                    return new Date(string).toLocaleTimeString();
+                }
+            },
+            data: {
+                timeLeft: 1500000,
+                fullSessionLength: 1500000,
+                shortBreak: 300000,
+                longBreak: 900000,
+                isRunning: false,
+                tomatoes: undefined,
+                newTomato: undefined,
+                profile: undefined
+            },
+            computed: {
+                isLoggedIn: function () {
+                    var isLoggedIn = localStorage.getItem('accessToken');
+
+                    if (isLoggedIn) {
+                        this.profile = JSON.parse(localStorage.getItem('profile'));
+                        this.profile.accessToken = isLoggedIn;
+
+                        this.getAllTomatoes();
+                    }
+
+                    return isLoggedIn;
+                },
+                profileNickname: function () {
+                    return this.profile.nickname;
+                },
+                profilePicture: function () {
+                    return this.profile.picture;
+                }
+            },
+            methods: {
+                login: function () {
+                    lock.show();
+                },
+                startTimer: function () {
+                    this.stopTimer();
+                    this.timeLeft = this.fullSessionLength;
+
+                    this.timeoutId = setInterval(function () {
+                        app.timeLeft = app.timeLeft - 1000;
+
+                        if (app.timeLeft === 0) {
+                            app.stopTimer();
+                            alert('Your tomato has ended! Log the work completed.');
+                        }
+
+                    }, 1000);
+
+                    this.isRunning = true;
+                },
+                stopTimer: function () {
+                    clearInterval(this.timeoutId);
+
+                    this.isRunning = false;
+                },
+                setTimerLength: function (newTime) {
+                    this.timeLeft = newTime;
+                },
+                getAllTomatoes: function () {
+                    var url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
+                            token = this.profile.accessToken;
+
+                    if(token) {
+                        $.ajax({
+                            url: url,
+                            method: 'GET',
+                            dataType: 'json',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': token
+                            },
+                            success: function (data) {
+                                if (data.hasOwnProperty('push')) {
+                                    app.tomatoes = data;
+                                } else {
+                                    app.tomatoes = [data];
+                                }
+                            },
+                            error: function (data) {
+                                console.log(data)
+                            }
+                        });
+                    }
+                },
+                createTomato: function (newTomato) {
+                    var url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
+                            token = this.profile.accessToken;
+
+                    $.ajax({
+                        url: url,
+                        method: 'POST',
+                        data: newTomato,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': token
+                        },
+                        success: function (data) {
+                            console.log(data)
+                        },
+                        error: function (data) {
+                            console.log(data)
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

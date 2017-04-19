@@ -73,6 +73,13 @@ provider:
 #    - exclude-me-dir/**
 
 functions:
+  index:
+    handler: /routes/index/index.main
+    events:
+            - http:
+                path: /
+                method: get
+                integration: lambda
   tomato:
     handler: /routes/tomato/index.main
     events:

@@ -37,6 +37,5 @@ var db = require('../../repo'),
 module.exports.main = router;
 
 
-var sut = require('./index');
-
-sut.main({method:'GET'}, console.log, console.log);
+//var sut = require('./index');
+//sut.main({method: 'GET'}, console.log, console.log);
