@@ -5,9 +5,10 @@
     <title>Mythological Productivity</title>
     <link rel="shortcut icon"
           href='https://cdn4.iconfinder.com/data/icons/new-seo-bussiness-set14/1024/Increase_Productivity-01-128.png'/>
-
     <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet'
           integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u' crossorigin='anonymous'>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css' rel='stylesheet'>
+
 </head>
 <body>
 <div id='app'>
@@ -65,7 +66,11 @@
                         <div>
                             <div class='form-group'>
                                 <label>Description:</label>
-                                <input type='text' class='form-control' placeholder='Accomplishments go here...'>
+                                <input v-model="newTomato.description" type='text' class='form-control'
+                                       placeholder='Accomplishments go here...'>
+                                <button class="btn btn-primary" type="button" v-on:click="createTomato(newTomato)">
+                                    Save
+                                </button>
                             </div>
                         </div>
 
@@ -119,6 +124,7 @@
     <script src='https://cdn.auth0.com/js/lock/10.14.0/lock.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js'></script>
     <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js'></script>
     <script>
         var lock;
         document.addEventListener('DOMContentLoaded', function (event) {
@@ -162,28 +168,8 @@
                     shortBreak: 300000,
                     longBreak: 900000,
                     isRunning: false,
-                    tomatoes: [
-                        {
-                            "Monday, April 17, 2017": [
-                                {
-                                    "description": "postman create",
-                                    "id": "4efeb855-68df-4232-81a3-66f4a0175bf8",
-                                    "createdAt": "2017-04-17T00:44:24.414Z"
-                                }
-                            ]
-                        },
-                        {
-                            "Saturday, April 15, 2017": [
-                                {
-                                    "createdAt": "2017-04-15T01:07:16.696Z",
-                                    "description": "desc",
-                                    "id": "119cea11-0633-44aa-9ac1-ec7ac99f98a8",
-                                    "author": "auth"
-                                }
-                            ]
-                        }
-                    ],
-                    newTomato: undefined,
+                    tomatoes: undefined,
+                    newTomato: {},
                     profile: undefined
                 },
                 computed: {
@@ -258,27 +244,33 @@
                                     console.log(data)
                                 }
                             });
+                        } else {
+                            console.log('not signed in...')
                         }
                     },
                     createTomato: function (newTomato) {
                         var url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
                                 token = this.profile.accessToken;
 
-                        $.ajax({
-                            url: url,
-                            method: 'POST',
-                            data: newTomato,
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': token
-                            },
-                            success: function (data) {
-                                console.log(data)
-                            },
-                            error: function (data) {
-                                console.log(data)
-                            }
-                        });
+                        if (token) {
+                            $.ajax({
+                                url: url,
+                                method: 'POST',
+                                data: newTomato,
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': token
+                                },
+                                success: function (data) {
+                                    console.log(data)
+                                },
+                                error: function (data) {
+                                    console.log(data)
+                                }
+                            });
+                        } else {
+                            console.log('not signed in...')
+                        }
                     }
                 }
             });
