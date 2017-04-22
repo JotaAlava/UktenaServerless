@@ -137,7 +137,7 @@
                         return;
                     }
 
-                    localStorage.setItem('accessToken', authResult.accessToken);
+                    localStorage.setItem('accessToken', authResult.idToken);
                     localStorage.setItem('profile', JSON.stringify(profile));
 
                     app.isLoggedIn();

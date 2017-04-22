@@ -2,39 +2,39 @@
  * Created by jalava on 4/4/2017.
  */
 'use strict';
-var request = require('request');
-var Promise = require('bluebird');
-var jwtVerify = Promise.promisify(require('jsonwebtoken').verify);
-var env = require('../config');
+var request = require('request'),
+  Promise = require('bluebird'),
+  jwtVerify = Promise.promisify(require('jsonwebtoken').verify),
+  env = require('../config');
 
 function getUserProfile(authToken) {
-    console.log('Get user profile');
-    console.log(env.region);
-    console.log(env.AUTH0_SECRET);
-    console.log(env.DOMAIN);
-    var secretBuffer = new Buffer(env.AUTH0_SECRET, 'base64');
-    var domain = env.DOMAIN;
-
-    var body = {
-        'id_token': authToken
+  var domain = env.DOMAIN,
+    body = {
+      'id_token': authToken
     };
 
-    var options = {
-        url: 'https://'+ domain + '/tokeninfo',
-        method: 'POST',
-        json: true,
-        body: body
-    };
+  var options = {
+    url: 'https://' + domain + '/tokeninfo',
+    method: 'POST',
+    json: true,
+    body: body
+  };
 
-    return jwtVerify(authToken, secretBuffer).then(function(decoded) {
-        return request(options);
-    }).catch(function (error) {
-        console.log('Failed jwt verification: ', error, 'auth: ', authToken);
-        return error;
-    });
+  console.log('authToken: ' + authToken);
+  return jwtVerify(authToken, env.AUTH0_SECRET).then(function (decoded) {
+    options.isSuccess = true;
+    return request(options);
+  }).catch(function (error) {
+    var result = {
+      isSuccess: false,
+      body: error
+    };
+    console.log(JSON.stringify(error));
+    return result;
+  });
 }
 
 module.exports = {
-    // Will verify the user and then return a profile
-    getUserProfile : getUserProfile
+  // Will verify the user and then return a profile
+  getUserProfile: getUserProfile
 };
