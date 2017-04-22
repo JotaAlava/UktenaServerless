@@ -8,7 +8,7 @@ module.exports.verifyToken = (event, context, callback) => {
     var token = event.authorizationToken.split(' ')[1];
 
     userProfile.getUserProfile(token).then(function(profile) {
-        context.succeed(generatePolicy('user', 'Allow', event.methodArn));
+        context.succeed(generatePolicy('user', 'Allow', '*'));
     }).catch(function(error) {
         context.fail("Unauthorized");
     })

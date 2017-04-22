@@ -65,7 +65,7 @@
                         <div>
                             <div class='form-group'>
                                 <label>Description:</label>
-                                <input type='text' class='form-control' placeholder='Accomplishments go here...'>
+                                <input type='text' class='form-control' placeholder='Accomplishments go here...' v-model="newTomato">
                                 <button type='submit' class='btn btn-success btn-xs small-font'
                                         v-on:click='createTomato(newTomato)'>Log Work!
                                 </button>
@@ -139,6 +139,8 @@
 
                     localStorage.setItem('accessToken', authResult.accessToken);
                     localStorage.setItem('profile', JSON.stringify(profile));
+
+                    app.isLoggedIn();
                 });
             });
 
@@ -249,21 +251,26 @@
                         var url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
                                 token = this.profile.accessToken;
 
-                        $.ajax({
-                            url: url,
-                            method: 'POST',
-                            data: newTomato,
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': token
-                            },
-                            success: function (data) {
-                                console.log(data)
-                            },
-                            error: function (data) {
-                                console.log(data)
-                            }
-                        });
+                        if (token) {
+                            $.ajax({
+                                url: url,
+                                method: 'POST',
+                                data: JSON.stringify({
+                                    author: this.profile,
+                                    description: newTomato
+                                }),
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': token
+                                },
+                                success: function (data) {
+                                    console.log(data)
+                                },
+                                error: function (data) {
+                                    console.log(data)
+                                }
+                            });
+                        }
                     }
                 }
             });
