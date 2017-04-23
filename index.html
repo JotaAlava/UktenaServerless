@@ -25,7 +25,7 @@
             <div class='col-md-4'>
                 <div class='panel panel-default'>
                     <div class='row'>
-                        <div class='col s12 center-align' style='margin-top: 15%'>
+                        <div class='col s12 center-align'>
                             <h1 class='text-center' style='font-size: 5rem'>
                                 {{timeLeft | time}}
                             </h1>
@@ -43,7 +43,7 @@
                                 </button>
                             </div>
                             <hr/>
-                            <div class='col-md-12'>
+                            <div class='col-md-12' style="margin-bottom: 15px;">
                                 <button type='submit' class='btn btn-success btn-xs small-font'
                                         v-on:click='setTimerLength(shortBreak)'>Short Break
                                 </button>
@@ -51,7 +51,6 @@
                                         v-on:click='setTimerLength(longBreak)'>Long Break
                                 </button>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -62,26 +61,41 @@
                         <h4><i class='fa fa-fw fa-gift'></i>Tomatoes</h4>
                     </div>
                     <div class='panel-body'>
-                        <div>
-                            <div class='form-group'>
-                                <label>Description:</label>
-                                <input type='text' class='form-control' placeholder='Accomplishments go here...' v-model="newTomato">
-                                <button type='submit' class='btn btn-success btn-xs small-font'
-                                        v-on:click='createTomato(newTomato)'>Log Work!
-                                </button>
-                            </div>
+                        <div class='form-group' v-if='isLoggedIn'>
+                            <label>Description:</label>
+                            <input type='text' class='form-control' placeholder='Accomplishments go here...'
+                                   v-model="newTomato" v-on:keyup.enter="createTomato(newTomato)">
+                            <br/>
+                            <button type='submit' class='btn btn-success btn-xs small-font'
+                                    v-on:click='createTomato(newTomato)'>Log Work!
+                            </button>
+                        </div>
+
+                        <div v-if='!isLoggedIn'>
+                            <h3>Sign in to log work.</h3>
                         </div>
 
                         <hr>
 
-                        <div>
-                            <div v-for='(key, value) in tomatoes'>
-                                <div v-for='(svalue,skey) in key'>
-                                    <span>{{Object.keys(svalue)[0]}}</span>
-
-                                    <div v-for='(ssvalue, sskey) in svalue'>
-                                        <div v-for="(sssvalue, ssskey) in ssvalue">
-                                            <span>{{sssvalue.description}}</span>
+                        <div class="bs-example">
+                            <div class="panel-group" id="accordion">
+                                <div v-for='(key, value) in tomatoes'>
+                                    <div class="panel panel-default" v-for='(svalue,skey) in key'>
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" data-parent="#accordion"
+                                                   v-bind:href="'#'+ new Date(Object.keys(svalue)[0]).getTime()">{{Object.keys(svalue)[0]}}</a>
+                                            </h4>
+                                        </div>
+                                        <div v-bind:id="new Date(Object.keys(svalue)[0]).getTime()"
+                                             class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div v-for='(ssvalue, sskey) in svalue'>
+                                                    <div v-for="(sssvalue, ssskey) in ssvalue">
+                                                        <span>{{sssvalue.description}}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -121,29 +135,12 @@
         <!-- /.container -->
     </div>
     <script src='https://cdn.auth0.com/js/lock/10.14.0/lock.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js'></script>
     <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js'></script>
     <script>
         var lock;
         document.addEventListener('DOMContentLoaded', function (event) {
-            lock = new Auth0Lock(
-                    'wVR4cnGvSn57F6sqFCjIj4ct7fAJEoYn',
-                    'jota85.auth0.com'
-            );
-
-            lock.on('authenticated', function (authResult) {
-                lock.getUserInfo(authResult.accessToken, function (error, profile) {
-                    if (error) {
-                        return;
-                    }
-
-                    localStorage.setItem('accessToken', authResult.idToken);
-                    localStorage.setItem('profile', JSON.stringify(profile));
-
-                    app.isLoggedIn();
-                });
-            });
-
             var app = new Vue({
                 el: '#app',
                 filters: {
@@ -256,7 +253,7 @@
                                 url: url,
                                 method: 'POST',
                                 data: JSON.stringify({
-                                    author: this.profile,
+                                    author: this.profile.email,
                                     description: newTomato
                                 }),
                                 headers: {
@@ -273,6 +270,24 @@
                         }
                     }
                 }
+            });
+
+            lock = new Auth0Lock(
+                    'wVR4cnGvSn57F6sqFCjIj4ct7fAJEoYn',
+                    'jota85.auth0.com'
+            );
+
+            lock.on('authenticated', function (authResult) {
+                lock.getUserInfo(authResult.accessToken, function (error, profile) {
+                    if (error) {
+                        return;
+                    }
+
+                    localStorage.setItem('accessToken', authResult.idToken);
+                    localStorage.setItem('profile', JSON.stringify(profile));
+
+                    window.location.reload();
+                });
             });
         });
     </script>
