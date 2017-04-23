@@ -17,7 +17,7 @@ var modelName = 'Tomato',
 
         schema: {
             id: vogels.types.uuid(),
-            author: Joi.object(),
+            author: Joi.string(),
             description: Joi.string()
         },
 

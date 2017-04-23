@@ -20,9 +20,9 @@ function getUserProfile(authToken) {
     body: body
   };
 
-  console.log('authToken: ' + authToken);
   return jwtVerify(authToken, env.AUTH0_SECRET).then(function (decoded) {
     options.isSuccess = true;
+    options.principalId = decoded.sub;
     return request(options);
   }).catch(function (error) {
     var result = {

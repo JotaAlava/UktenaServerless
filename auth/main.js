@@ -7,18 +7,18 @@ var userProfile = require('./userProfile');
 module.exports.verifyToken = (event, context, callback) => {
   var token = event.authorizationToken.split(' ')[1];
   var authToken = token || event.authorizationToken;
-  console.log('token as it will be used: ' + authToken);
-  userProfile.getUserProfile(authToken).then(function (tokenRes) {
-    var policy = generatePolicy('user', 'Allow', '*');
 
-    if (tokenRes.isSuccess) {
-      context.succeed(policy);
-    } else {
+  userProfile.getUserProfile(authToken)
+    .then(function (tokenRes) {
+      if (tokenRes.isSuccess) {
+        var policy = generatePolicy(tokenRes.principalId, 'Allow', '*');
+        context.succeed(policy);
+      } else {
+        context.fail("Unauthorized");
+      }
+    }).catch(function (error) {
       context.fail("Unauthorized");
-    }
-  }).catch(function (error) {
-    context.fail("Unauthorized");
-  })
+    })
 };
 
 var generatePolicy = function (principalId, effect, resource) {
