@@ -5,28 +5,35 @@
 var userProfile = require('./userProfile');
 
 module.exports.verifyToken = (event, context, callback) => {
-    var token = event.authorizationToken.split(' ')[1];
+  var token = event.authorizationToken.split(' ')[1];
+  var authToken = token || event.authorizationToken;
 
-    userProfile.getUserProfile(token).then(function(profile) {
-        context.succeed(generatePolicy('user', 'Allow', event.methodArn));
-    }).catch(function(error) {
+  userProfile.getUserProfile(authToken)
+    .then(function (tokenRes) {
+      if (tokenRes.isSuccess) {
+        var policy = generatePolicy(tokenRes.principalId, 'Allow', '*');
+        context.succeed(policy);
+      } else {
         context.fail("Unauthorized");
+      }
+    }).catch(function (error) {
+      context.fail("Unauthorized");
     })
 };
 
-var generatePolicy = function(principalId, effect, resource) {
-    var authResponse = {};
-    authResponse.principalId = principalId;
-    if (effect && resource) {
-        var policyDocument = {};
-        policyDocument.Version = '2012-10-17'; // default version
-        policyDocument.Statement = [];
-        var statementOne = {};
-        statementOne.Action = 'execute-api:Invoke'; // default action
-        statementOne.Effect = effect;
-        statementOne.Resource = resource;
-        policyDocument.Statement[0] = statementOne;
-        authResponse.policyDocument = policyDocument;
-    }
-    return authResponse;
+var generatePolicy = function (principalId, effect, resource) {
+  var authResponse = {};
+  authResponse.principalId = principalId;
+  if (effect && resource) {
+    var policyDocument = {};
+    policyDocument.Version = '2012-10-17'; // default version
+    policyDocument.Statement = [];
+    var statementOne = {};
+    statementOne.Action = 'execute-api:Invoke'; // default action
+    statementOne.Effect = effect;
+    statementOne.Resource = resource;
+    policyDocument.Statement[0] = statementOne;
+    authResponse.policyDocument = policyDocument;
+  }
+  return authResponse;
 };

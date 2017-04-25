@@ -80,6 +80,10 @@ functions:
                 path: /
                 method: get
                 integration: lambda
+                response:
+                  headers:
+                    Content-Type: "'text/html'"
+                  template: $input.path('$')
   tomato:
     handler: /routes/tomato/index.main
     events:

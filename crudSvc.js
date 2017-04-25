@@ -2,6 +2,27 @@
  * Created by jalava on 3/21/2017.
  */
 function CrudSvc(repo, preOps, postOps) {
+  function safeRunPostOps(verb, data) {
+    var result;
+
+    if (postOps && postOps.hasOwnProperty(verb)) {
+      result = postOps[verb](data);
+    } else {
+      result = data;
+    }
+
+    return result;
+  }
+
+  function safeRunPreOps(verb, options) {
+    if (preOps && preOps.hasOwnProperty(verb)) {
+      options.preOps = {};
+      options.preOps[verb] = preOps[verb];
+    }
+
+    return options;
+  }
+
   var get = (event, context, callback) => {
     const RESPONSE = {
       OK: {
@@ -14,13 +35,10 @@ function CrudSvc(repo, preOps, postOps) {
       }
     };
 
-    var options = {};
-
-    if (preOps && preOps.hasOwnProperty('get')) {
-      options.preOps = {
-        get: preOps.get
-      }
-    }
+    var options = safeRunPreOps('get', {
+      event,
+      context
+    });
 
     if (event.hasOwnProperty('path') && event.path.hasOwnProperty('id')) {
       options.query = {
@@ -30,15 +48,15 @@ function CrudSvc(repo, preOps, postOps) {
 
     repo.get(options)
       .then(function (data) {
-        var result;
+        var postOpResult = safeRunPostOps('get', data);
 
-        if (postOps && postOps.hasOwnProperty('get')) {
-          result = postOps.get(data)
+        if (postOpResult.then) {
+          postOpResult.then(function (postOpResult) {
+            callback(null, postOpResult);
+          });
         } else {
-          result = data;
+          callback(null, postOpResult);
         }
-        
-        callback(null, result);
       }, function (err) {
         RESPONSE.ERROR.err = err;
         callback(null, RESPONSE.ERROR);
@@ -57,13 +75,10 @@ function CrudSvc(repo, preOps, postOps) {
       }
     };
 
-    var options = {};
-
-    if (preOps && preOps.hasOwnProperty('delete')) {
-      options.preOps = {
-        delete: preOps.delete
-      }
-    }
+    var options = safeRunPreOps('delete', {
+      event,
+      context
+    });
 
     if (event.hasOwnProperty('path') && event.path.hasOwnProperty('id')) {
       options.query = {
@@ -73,7 +88,7 @@ function CrudSvc(repo, preOps, postOps) {
 
     repo.delete(options)
       .then(function (data) {
-        callback(null, data);
+        callback(null, safeRunPostOps('delete', data));
       }, function (err) {
         RESPONSE.ERROR.err = err;
         callback(null, RESPONSE.ERROR);
@@ -94,13 +109,10 @@ function CrudSvc(repo, preOps, postOps) {
       }
     };
 
-    var options = {};
-
-    if (preOps && preOps.hasOwnProperty('post')) {
-      options.preOps = {
-        post: preOps.post
-      }
-    }
+    var options = safeRunPreOps('post', {
+      event,
+      context
+    });
 
     if (parsedBody) {
       options.body = parsedBody;
@@ -108,8 +120,7 @@ function CrudSvc(repo, preOps, postOps) {
 
     repo.add(options)
       .then(function (data) {
-        var resultSet = data.hasOwnProperty('attrs') ? data.attrs : data;
-        callback(null, resultSet);
+        callback(null, safeRunPostOps('post', data));
       }, function (err) {
         RESPONSE.ERROR.err = err;
         callback(null, RESPONSE.ERROR);
@@ -130,13 +141,10 @@ function CrudSvc(repo, preOps, postOps) {
       }
     };
 
-    var options = {};
-
-    if (preOps && preOps.hasOwnProperty('put')) {
-      options.preOps = {
-        put: preOps.put
-      }
-    }
+    var options = safeRunPreOps('put', {
+      event,
+      context
+    });
 
     if (parsedBody) {
       options.body = parsedBody;
@@ -144,7 +152,7 @@ function CrudSvc(repo, preOps, postOps) {
 
     repo.set(options)
       .then(function (data) {
-        callback(null, data);
+        callback(null, safeRunPostOps('put', data));
       }, function (err) {
         RESPONSE.ERROR.err = err;
         callback(null, RESPONSE.ERROR);

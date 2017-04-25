@@ -3,12 +3,11 @@
 <head>
     <meta charset='UTF-8'>
     <title>Mythological Productivity</title>
-    <link rel='shortcut icon'
+    <link rel="shortcut icon"
           href='https://cdn4.iconfinder.com/data/icons/new-seo-bussiness-set14/1024/Increase_Productivity-01-128.png'/>
+
     <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet'
           integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u' crossorigin='anonymous'>
-    <link href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css' rel='stylesheet'>
-
 </head>
 <body>
 <div id='app'>
@@ -44,7 +43,7 @@
                                 </button>
                             </div>
                             <hr/>
-                            <div class='col-md-12'>
+                            <div class='col-md-12' style="margin-bottom: 15px;">
                                 <button type='submit' class='btn btn-success btn-xs small-font'
                                         v-on:click='setTimerLength(shortBreak)'>Short Break
                                 </button>
@@ -54,7 +53,6 @@
                             </div>
                         </div>
                     </div>
-                    <br/>
                 </div>
             </div>
             <div class='col-md-4'>
@@ -63,20 +61,45 @@
                         <h4><i class='fa fa-fw fa-gift'></i>Tomatoes</h4>
                     </div>
                     <div class='panel-body'>
-                        <div v-for='(key, value) in tomatoes'>
-                            <div v-for='(skey, svalue) in key'>
-                                <span>Value: {{svalue}}</span>
-                                <span>Key: {{skey}}</span>
-                                <span>{{skey.length}}</span>
+                        <div class='form-group' v-if='isLoggedIn'>
+                            <label>Description:</label>
+                            <input type='text' class='form-control' placeholder='Accomplishments go here...'
+                                   v-model="newTomato" v-on:keyup.enter="createTomato(newTomato)">
+                            <br/>
+                            <button type='submit' class='btn btn-success btn-xs small-font'
+                                    v-on:click='createTomato(newTomato)'>Log Work!
+                            </button>
+                        </div>
 
-                                <div v-for='(sskey, ssvalue) in skey'>
-                                    <span>SubValue: {{ssvalue}}</span>
-                                    <span>{{sskey.description}}</span>
+                        <div v-if='!isLoggedIn'>
+                            <h3>Sign in to log work.</h3>
+                        </div>
+
+                        <hr>
+
+                        <div class="bs-example">
+                            <div class="panel-group" id="accordion">
+                                <div v-for='(key, value) in tomatoes'>
+                                    <div class="panel panel-default" v-for='(svalue,skey) in key'>
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a data-toggle="collapse" data-parent="#accordion"
+                                                   v-bind:href="'#'+ new Date(Object.keys(svalue)[0]).getTime()">{{Object.keys(svalue)[0]}}</a>
+                                            </h4>
+                                        </div>
+                                        <div v-bind:id="new Date(Object.keys(svalue)[0]).getTime()"
+                                             class="panel-collapse collapse">
+                                            <div class="panel-body">
+                                                <div v-for='(ssvalue, sskey) in svalue'>
+                                                    <div v-for="(sssvalue, ssskey) in ssvalue">
+                                                        <span>{{sssvalue.createdAt}}<br/>{{sssvalue.description}}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div v-if='!isLoggedIn'>
-                            <p>Nothing to see here...</p>
                         </div>
                     </div>
                 </div>
@@ -97,15 +120,6 @@
                                          v-bind:src='profilePicture'
                                          style='border-radius: 400px;' alt='User' width='150' height='115'>
                                 </div>
-                                <div class='form-group'>
-                                    <label>Description:</label>
-                                    <input v-model='newTomato.description' type='text' class='form-control'
-                                           placeholder='Accomplishments go here...'>
-                                    <br/>
-                                    <button class='btn btn-primary' type='button' v-on:click='createTomato(newTomato)'>
-                                        Save
-                                    </button>
-                                </div>
                             </div>
                             <div class='form-group row' v-else>
                                 <div class='offset-sm-2 col-sm-10'>
@@ -121,28 +135,12 @@
         <!-- /.container -->
     </div>
     <script src='https://cdn.auth0.com/js/lock/10.14.0/lock.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js'></script>
     <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js'></script>
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js'></script>
     <script>
         var lock;
         document.addEventListener('DOMContentLoaded', function (event) {
-            lock = new Auth0Lock(
-                    'wVR4cnGvSn57F6sqFCjIj4ct7fAJEoYn',
-                    'jota85.auth0.com'
-            );
-
-            lock.on('authenticated', function (authResult) {
-                lock.getUserInfo(authResult.accessToken, function (error, profile) {
-                    if (error) {
-                        return;
-                    }
-
-                    localStorage.setItem('accessToken', authResult.accessToken);
-                    localStorage.setItem('profile', JSON.stringify(profile));
-                });
-            });
-
             var app = new Vue({
                 el: '#app',
                 filters: {
@@ -168,7 +166,7 @@
                     longBreak: 900000,
                     isRunning: false,
                     tomatoes: undefined,
-                    newTomato: {},
+                    newTomato: undefined,
                     profile: undefined
                 },
                 computed: {
@@ -233,6 +231,7 @@
                                     'Authorization': token
                                 },
                                 success: function (data) {
+                                    console.log(data);
                                     if (data.hasOwnProperty('push')) {
                                         app.tomatoes = data;
                                     } else {
@@ -243,8 +242,6 @@
                                     console.log(data)
                                 }
                             });
-                        } else {
-                            console.log('not signed in...')
                         }
                     },
                     createTomato: function (newTomato) {
@@ -255,7 +252,10 @@
                             $.ajax({
                                 url: url,
                                 method: 'POST',
-                                data: newTomato,
+                                data: JSON.stringify({
+                                    author: this.profile.email,
+                                    description: newTomato
+                                }),
                                 headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': token
@@ -267,11 +267,27 @@
                                     console.log(data)
                                 }
                             });
-                        } else {
-                            console.log('not signed in...')
                         }
                     }
                 }
+            });
+
+            lock = new Auth0Lock(
+                    'wVR4cnGvSn57F6sqFCjIj4ct7fAJEoYn',
+                    'jota85.auth0.com'
+            );
+
+            lock.on('authenticated', function (authResult) {
+                lock.getUserInfo(authResult.accessToken, function (error, profile) {
+                    if (error) {
+                        return;
+                    }
+
+                    localStorage.setItem('accessToken', authResult.idToken);
+                    localStorage.setItem('profile', JSON.stringify(profile));
+
+                    window.location.reload();
+                });
             });
         });
     </script>
