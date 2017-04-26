@@ -8,7 +8,9 @@ aws.config.update({region: 'us-east-1'});
 var db = new aws.DynamoDB.DocumentClient();
 Promise.promisifyAll(Object.getPrototypeOf(db));
 
-module.exports = function (Model) {
+// This repo is the only place we need to change
+// to change between MongoDb or DynamoDb (raw or vogels)
+module.exports = function (Model, customOps) {
   var get = (options)=> {
     let result;
     let preOpResult = true;
@@ -17,7 +19,10 @@ module.exports = function (Model) {
     }
 
     if (preOpResult) {
-      if (options.hasOwnProperty('query') && options.query.hasOwnProperty('id')) {
+      if (customOps.get) {
+        result = customOps.get(Model, options).execAsync();
+      }
+      else if (options.hasOwnProperty('query') && options.query.hasOwnProperty('id')) {
         result = Model
           .query(options.query.id.toString())
           .execAsync();
@@ -97,3 +102,31 @@ module.exports = function (Model) {
     delete: del
   }
 };
+
+// TESTING BELOW
+
+// var customOps = {
+//   get: function (Model, options) {
+    // var date = new Date(),
+    //     hasKey = options.query.author.toString(),
+    //     rangeKey = 'createdAt';
+    //
+    // date.setDate(date.getDate() - 8);
+    //
+    // return Model
+    //     .query(hasKey)
+    //     .where(rangeKey)
+    //     .gt(date.toISOString())
+    //     .descending()
+  // }
+// };
+
+// var db = require('./repo'),
+//     Modelo = require('./models/tomato'),
+//     options = {query: {author: 'google-oauth2|107593470509194206658'}},
+//     sut = new db(Modelo, customOps);
+//
+// sut.get(options)
+//     .then(function(data){
+//       console.log(data)
+//     });
