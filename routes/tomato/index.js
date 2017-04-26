@@ -15,9 +15,11 @@ var tomatoSorter = require('./tomatoSorter'),
 var customOps = {
     get: function (Model, options) {
         // TODO: Find a way to execute both custom, and default getters within a repo.
+        // TODO: Or maybe once there is a custom then we have to implement all customs? No fallthrough to the default queries?
         // var hasKey = 'google-oauth2|107593470509194206658';
         var date = new Date(),
-            hasKey = options.query.author.toString(),
+            // In this case, the id for the tomato is the author id
+            hasKey = options.event.principalId,
             rangeKey = 'createdAt';
 
         date.setDate(date.getDate() - 9);
@@ -29,6 +31,7 @@ var customOps = {
             .descending()
     }
 };
+
 var db = require('../../repo'),
     Tomato = require('../../models/tomato'),
     repo = new db(Tomato, customOps),
