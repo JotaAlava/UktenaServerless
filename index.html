@@ -3,7 +3,7 @@
 <head>
     <meta charset='UTF-8'>
     <title>Mythological Productivity</title>
-    <link rel="shortcut icon"
+    <link rel='shortcut icon'
           href='https://cdn4.iconfinder.com/data/icons/new-seo-bussiness-set14/1024/Increase_Productivity-01-128.png'/>
 
     <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet'
@@ -43,7 +43,7 @@
                                 </button>
                             </div>
                             <hr/>
-                            <div class='col-md-12' style="margin-bottom: 15px;">
+                            <div class='col-md-12' style='margin-bottom: 15px;'>
                                 <button type='submit' class='btn btn-success btn-xs small-font'
                                         v-on:click='setTimerLength(shortBreak)'>Short Break
                                 </button>
@@ -64,7 +64,7 @@
                         <div class='form-group' v-if='isLoggedIn'>
                             <label>Description:</label>
                             <input type='text' class='form-control' placeholder='Accomplishments go here...'
-                                   v-model="newTomato" v-on:keyup.enter="createTomato(newTomato)">
+                                   v-model='newTomato' v-on:keyup.enter='createTomato(newTomato)'>
                             <br/>
                             <button type='submit' class='btn btn-success btn-xs small-font'
                                     v-on:click='createTomato(newTomato)'>Log Work!
@@ -77,21 +77,21 @@
 
                         <hr>
 
-                        <div class="bs-example">
-                            <div class="panel-group" id="accordion">
+                        <div class='bs-example'>
+                            <div class='panel-group' id='accordion'>
                                 <div v-for='(key, value) in tomatoes'>
-                                    <div class="panel panel-default" v-for='(svalue,skey) in key'>
-                                        <div class="panel-heading">
-                                            <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#accordion"
-                                                   v-bind:href="'#'+ new Date(Object.keys(svalue)[0]).getTime()">{{Object.keys(svalue)[0]}}</a>
+                                    <div class='panel panel-default' v-for='(svalue,skey) in key'>
+                                        <div class='panel-heading'>
+                                            <h4 class='panel-title'>
+                                                <a data-toggle='collapse' data-parent='#accordion'
+                                                   v-bind:href=''#'+ new Date(Object.keys(svalue)[0]).getTime()'>{{Object.keys(svalue)[0]}}</a>
                                             </h4>
                                         </div>
-                                        <div v-bind:id="new Date(Object.keys(svalue)[0]).getTime()"
-                                             class="panel-collapse collapse">
-                                            <div class="panel-body">
+                                        <div v-bind:id='new Date(Object.keys(svalue)[0]).getTime()'
+                                             class='panel-collapse collapse'>
+                                            <div class='panel-body'>
                                                 <div v-for='(ssvalue, sskey) in svalue'>
-                                                    <div v-for="(sssvalue, ssskey) in ssvalue">
+                                                    <div v-for='(sssvalue, ssskey) in ssvalue'>
                                                         <span>{{sssvalue.createdAt}}<br/>{{sssvalue.description}}</span>
                                                     </div>
                                                 </div>
