@@ -8,12 +8,17 @@
 
     <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet'
           integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u' crossorigin='anonymous'>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<div id='app'>
+<div id='app' v-cloak>
     <br/>
     <!-- Page Content -->
-    <div class='container-fluid'>
+    <div class='container'>
 
         <!-- Marketing Icons Section -->
         <div class='row'>
@@ -22,7 +27,7 @@
                     <span>Uktena <sup><em style='font-size: 12px;'>Mythological Productivity</em></sup></span>
                 </h1>
             </div>
-            <div class='col-md-4'>
+            <div class='col-md-12'>
                 <div class='panel panel-default'>
                     <div class='row'>
                         <div class='col s12 center-align'>
@@ -55,7 +60,7 @@
                     </div>
                 </div>
             </div>
-            <div class='col-md-4'>
+            <div class='col-md-6'>
                 <div class='panel panel-default'>
                     <div class='panel-heading'>
                         <h4><i class='fa fa-fw fa-gift'></i>Tomatoes</h4>
@@ -93,6 +98,12 @@
                                                 <div v-for='(ssvalue, sskey) in svalue'>
                                                     <div v-for='(sssvalue, ssskey) in ssvalue'>
                                                         <span>{{sssvalue.createdAt}}<br/>{{sssvalue.description}}</span>
+                                                        <button v-if='!isDeleting' type='button' class='btn btn-warning btn-xs small-font'
+                                                                v-on:click='enableDelete'>Delete
+                                                        </button>
+                                                        <button v-if='isDeleting' type='button' class='btn btn-danger btn-xs small-font'
+                                                                v-on:click='deleteTomato(sssvalue.id)'>Yes, I confirm a permanent delete.
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -104,7 +115,7 @@
                     </div>
                 </div>
             </div>
-            <div class='col-md-4'>
+            <div class='col-md-6'>
                 <div class='panel panel-default'>
                     <div class='panel-heading'>
                         <h4><i class='fa fa-fw fa-compass'></i>User Info</h4>
@@ -165,6 +176,7 @@
                     shortBreak: 300000,
                     longBreak: 900000,
                     isRunning: false,
+                    isDeleting: false,
                     tomatoes: undefined,
                     newTomato: undefined,
                     profile: undefined
@@ -239,7 +251,10 @@
                                     }
                                 },
                                 error: function (data) {
-                                    console.log('get error ' + data)
+                                    if (data.responseJSON.message === 'Unauthorized') {
+                                        localStorage.clear();
+                                        app.profile = undefined;
+                                    }
                                 }
                             });
                         }
@@ -261,13 +276,47 @@
                                     'Authorization': token
                                 },
                                 success: function (data) {
-                                    console.log(data)
+                                    app.newTomato = undefined;
+                                    app.getAllTomatoes();
                                 },
                                 error: function (data) {
-                                    console.log(data)
+                                    if (data.responseJSON.message === 'Unauthorized') {
+                                        localStorage.clear();
+                                        app.profile = undefined;
+                                    }
                                 }
                             });
                         }
+                    },
+                    deleteTomato: function (tomatoId) {
+                        var url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
+                                token = this.profile.accessToken;
+
+                        if (token) {
+                            $.ajax({
+                                url: url + '/' + tomatoId,
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': token
+                                },
+                                success: function (data) {
+                                    app.getAllTomatoes();
+                                },
+                                error: function (data) {
+                                    if (data.responseJSON.message === 'Unauthorized') {
+                                        localStorage.clear();
+                                        app.profile = undefined;
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    enableDelete: function () {
+                        this.isDeleting = true;
+                    },
+                    disableDelete: function () {
+                        this.isDeleting = false;
                     }
                 }
             });

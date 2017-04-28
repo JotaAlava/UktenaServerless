@@ -11,7 +11,7 @@ var modelName = 'Tomato',
     Joi = require('joi'),
     Tomato = vogels.define(modelName, {
         hashKey: 'author',
-        rangeKey: 'createdAt',
+        rangeKey: 'id', // Created at might be a better range key...
         // add the timestamp attributes (updatedAt, createdAt)
         timestamps: true,
 
@@ -21,7 +21,11 @@ var modelName = 'Tomato',
             description: Joi.string()
         },
 
-        tableName: tableName
+        tableName: tableName,
+
+        indexes : [
+            {hashKey : 'author', rangeKey : 'createdAt', type : 'local', name : 'QueryIndex'}
+        ]
     });
 
 module.exports = Tomato;

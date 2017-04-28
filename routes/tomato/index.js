@@ -18,17 +18,18 @@ var customOps = {
         // TODO: Or maybe once there is a custom then we have to implement all customs? No fallthrough to the default queries?
         // var hasKey = 'google-oauth2|107593470509194206658';
         var date = new Date(),
-            // In this case, the id for the tomato is the author id
-            hasKey = options.event.principalId,
+        // In this case, the id for the tomato is the author id
+            hashKey = options.event.principalId,
             rangeKey = 'createdAt';
 
         date.setDate(date.getDate() - 9);
 
         return Model
-            .query(hasKey)
+            .query(hashKey)
+            .usingIndex('QueryIndex')
             .where(rangeKey)
             .gt(date.toISOString())
-            .descending()
+            .descending();
     }
 };
 
@@ -39,7 +40,6 @@ var db = require('../../repo'),
     router = new require('../../router')(crudSvc.get, crudSvc.post, crudSvc.put, crudSvc.del);
 
 module.exports.main = router;
-
 
 //var sut = require('./index');
 //sut.main({method: 'GET'}, console.log, console.log);
