@@ -141,6 +141,7 @@
     <script>
         var lock;
         document.addEventListener('DOMContentLoaded', function (event) {
+
             var app = new Vue({
                 el: '#app',
                 filters: {
@@ -197,15 +198,7 @@
                         this.stopTimer();
                         this.timeLeft = this.fullSessionLength;
 
-                        this.timeoutId = setInterval(function () {
-                            app.timeLeft = app.timeLeft - 1000;
-
-                            if (app.timeLeft === 0) {
-                                app.stopTimer();
-                                alert('Your tomato has ended! Log the work completed.');
-                            }
-
-                        }, 1000);
+                        this.timeoutId = runTimer();
 
                         this.isRunning = true;
                     },
@@ -216,6 +209,7 @@
                     },
                     setTimerLength: function (newTime) {
                         this.timeLeft = newTime;
+                        runTimer();
                     },
                     getAllTomatoes: function () {
                         var url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
@@ -271,6 +265,18 @@
                     }
                 }
             });
+
+            function runTimer() {
+                return setInterval(function () {
+                    app.timeLeft = app.timeLeft - 1000;
+
+                    if (app.timeLeft === 0) {
+                        app.stopTimer();
+                        alert('Your tomato has ended! Log the work completed.');
+                    }
+
+                }, 1000);
+            }
 
             lock = new Auth0Lock(
                     'wVR4cnGvSn57F6sqFCjIj4ct7fAJEoYn',
