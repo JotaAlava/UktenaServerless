@@ -3,17 +3,22 @@
 <head>
     <meta charset='UTF-8'>
     <title>Mythological Productivity</title>
-    <link rel="shortcut icon"
+    <link rel='shortcut icon'
           href='https://cdn4.iconfinder.com/data/icons/new-seo-bussiness-set14/1024/Increase_Productivity-01-128.png'/>
 
     <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet'
           integrity='sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u' crossorigin='anonymous'>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<div id='app'>
+<div id='app' v-cloak>
     <br/>
     <!-- Page Content -->
-    <div class='container-fluid'>
+    <div class='container'>
 
         <!-- Marketing Icons Section -->
         <div class='row'>
@@ -22,7 +27,7 @@
                     <span>Uktena <sup><em style='font-size: 12px;'>Mythological Productivity</em></sup></span>
                 </h1>
             </div>
-            <div class='col-md-4'>
+            <div class='col-md-12'>
                 <div class='panel panel-default'>
                     <div class='row'>
                         <div class='col s12 center-align'>
@@ -43,7 +48,7 @@
                                 </button>
                             </div>
                             <hr/>
-                            <div class='col-md-12' style="margin-bottom: 15px;">
+                            <div class='col-md-12' style='margin-bottom: 15px;'>
                                 <button type='submit' class='btn btn-success btn-xs small-font'
                                         v-on:click='setTimerLength(shortBreak)'>Short Break
                                 </button>
@@ -55,7 +60,7 @@
                     </div>
                 </div>
             </div>
-            <div class='col-md-4'>
+            <div class='col-md-6'>
                 <div class='panel panel-default'>
                     <div class='panel-heading'>
                         <h4><i class='fa fa-fw fa-gift'></i>Tomatoes</h4>
@@ -64,7 +69,7 @@
                         <div class='form-group' v-if='isLoggedIn'>
                             <label>Description:</label>
                             <input type='text' class='form-control' placeholder='Accomplishments go here...'
-                                   v-model="newTomato" v-on:keyup.enter="createTomato(newTomato)">
+                                   v-model='newTomato' v-on:keyup.enter='createTomato(newTomato)'>
                             <br/>
                             <button type='submit' class='btn btn-success btn-xs small-font'
                                     v-on:click='createTomato(newTomato)'>Log Work!
@@ -77,22 +82,31 @@
 
                         <hr>
 
-                        <div class="bs-example">
-                            <div class="panel-group" id="accordion">
+                        <div class='bs-example'>
+                            <div class='panel-group' id='accordion'>
                                 <div v-for='(key, value) in tomatoes'>
-                                    <div class="panel panel-default" v-for='(svalue,skey) in key'>
-                                        <div class="panel-heading">
-                                            <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#accordion"
-                                                   v-bind:href="'#'+ new Date(Object.keys(svalue)[0]).getTime()">{{Object.keys(svalue)[0]}}</a>
+                                    <div class='panel panel-default' v-for='(svalue,skey) in key'>
+                                        <div class='panel-heading'>
+                                            <h4 class='panel-title'>
+                                                <a data-toggle='collapse' data-parent='#accordion'
+                                                   v-bind:href='"#"+ new Date(Object.keys(svalue)[0]).getTime()'>{{Object.keys(svalue)[0]}}</a>
                                             </h4>
                                         </div>
-                                        <div v-bind:id="new Date(Object.keys(svalue)[0]).getTime()"
-                                             class="panel-collapse collapse">
-                                            <div class="panel-body">
+                                        <div v-bind:id='new Date(Object.keys(svalue)[0]).getTime()'
+                                             class='panel-collapse collapse'>
+                                            <div class='panel-body'>
                                                 <div v-for='(ssvalue, sskey) in svalue'>
-                                                    <div v-for="(sssvalue, ssskey) in ssvalue">
+                                                    <div v-for='(sssvalue, ssskey) in ssvalue'>
                                                         <span>{{sssvalue.createdAt}}<br/>{{sssvalue.description}}</span>
+                                                        <button v-if='!isDeleting' type='button'
+                                                                class='btn btn-warning btn-xs small-font'
+                                                                v-on:click='enableDelete'>Delete
+                                                        </button>
+                                                        <button v-if='isDeleting' type='button'
+                                                                class='btn btn-danger btn-xs small-font'
+                                                                v-on:click='deleteTomato(sssvalue.id)'>Yes, I confirm a
+                                                            permanent delete.
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -104,7 +118,7 @@
                     </div>
                 </div>
             </div>
-            <div class='col-md-4'>
+            <div class='col-md-6'>
                 <div class='panel panel-default'>
                     <div class='panel-heading'>
                         <h4><i class='fa fa-fw fa-compass'></i>User Info</h4>
@@ -139,7 +153,10 @@
     <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js'></script>
     <script>
-        var lock;
+        var lock,
+                url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
+                utcOffset = new Date().getTimezoneOffset() / 60;
+
         document.addEventListener('DOMContentLoaded', function (event) {
 
             var app = new Vue({
@@ -166,6 +183,7 @@
                     shortBreak: 300000,
                     longBreak: 900000,
                     isRunning: false,
+                    isDeleting: false,
                     tomatoes: undefined,
                     newTomato: undefined,
                     profile: undefined
@@ -212,12 +230,11 @@
                         runTimer();
                     },
                     getAllTomatoes: function () {
-                        var url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
-                                token = this.profile.accessToken;
+                        var token = this.profile.accessToken;
 
                         if (token) {
                             $.ajax({
-                                url: url,
+                                url: url + '?o=' + utcOffset,
                                 method: 'GET',
                                 dataType: 'json',
                                 headers: {
@@ -225,7 +242,7 @@
                                     'Authorization': token
                                 },
                                 success: function (data) {
-                                    console.log(data);
+                                    console.log('get success ' + data);
                                     if (data.hasOwnProperty('push')) {
                                         app.tomatoes = data;
                                     } else {
@@ -233,18 +250,20 @@
                                     }
                                 },
                                 error: function (data) {
-                                    console.log(data)
+                                    if (data.responseJSON.message === 'Unauthorized') {
+                                        localStorage.clear();
+                                        app.profile = undefined;
+                                    }
                                 }
                             });
                         }
                     },
                     createTomato: function (newTomato) {
-                        var url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
-                                token = this.profile.accessToken;
+                        var token = this.profile.accessToken;
 
                         if (token) {
                             $.ajax({
-                                url: url,
+                                url: url + '?o=' + utcOffset,
                                 method: 'POST',
                                 data: JSON.stringify({
                                     author: this.profile.email,
@@ -255,13 +274,47 @@
                                     'Authorization': token
                                 },
                                 success: function (data) {
-                                    console.log(data)
+                                    app.newTomato = undefined;
+                                    app.getAllTomatoes();
                                 },
                                 error: function (data) {
-                                    console.log(data)
+                                    if (data.responseJSON.message === 'Unauthorized') {
+                                        localStorage.clear();
+                                        app.profile = undefined;
+                                    }
                                 }
                             });
                         }
+                    },
+                    deleteTomato: function (tomatoId) {
+                        var url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
+                                token = this.profile.accessToken;
+
+                        if (token) {
+                            $.ajax({
+                                url: url + '/' + tomatoId + '?o=' + utcOffset,
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': token
+                                },
+                                success: function (data) {
+                                    app.getAllTomatoes();
+                                },
+                                error: function (data) {
+                                    if (data.responseJSON.message === 'Unauthorized') {
+                                        localStorage.clear();
+                                        app.profile = undefined;
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    enableDelete: function () {
+                        this.isDeleting = true;
+                    },
+                    disableDelete: function () {
+                        this.isDeleting = false;
                     }
                 }
             });

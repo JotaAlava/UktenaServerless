@@ -8,10 +8,12 @@ var _ = require('underscore'),
     return new Date(b.createdAt) - new Date(a.createdAt);
   };
 
-module.exports = function tomatoSorter(data) {
+module.exports = function tomatoSorter(data, options) {
   var itemsAsArray = data.Items.length === 1 ? [data.Items[0].attrs] : _.map(data.Items, function (val, key, list) {
     return val.attrs;
   });
+
+  console.log('utc offset: ' + options.utcOffset);
 
   // Group by date
   var groupedItems = _.groupBy(itemsAsArray, function (item, val) {

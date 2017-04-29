@@ -9,9 +9,9 @@ var modelName = 'Tomato',
     tableName = 'Tomatoes',
 
     Joi = require('joi'),
-    Booking = vogels.define(modelName, {
-        hashKey: 'id',
-
+    Tomato = vogels.define(modelName, {
+        hashKey: 'author',
+        rangeKey: 'id', // Created at might be a better range key...
         // add the timestamp attributes (updatedAt, createdAt)
         timestamps: true,
 
@@ -21,7 +21,34 @@ var modelName = 'Tomato',
             description: Joi.string()
         },
 
-        tableName: tableName
+        tableName: tableName,
+
+        indexes : [
+            {hashKey : 'author', rangeKey : 'createdAt', type : 'local', name : 'QueryIndex'}
+        ]
     });
 
-module.exports = Booking;
+module.exports = Tomato;
+
+// TESTING BELOW
+
+// vogels.createTables(function(err) {
+//     if (err) {
+//         console.log('Error creating tables: ', err);
+//     } else {
+//         console.log('Tables has been created');
+//
+//     }
+// });
+
+// var sut = require('./tomato');
+// var date = new Date();
+// date.setDate(date.getDate() - 9);
+//
+// sut.query('google-oauth2|107593470509194206658')
+//     .where('createdAt').gt(date.toISOString())
+//     .descending()
+//     .exec(function(err, resp){
+//         console.log(err);
+//         console.log(res);
+//     });
