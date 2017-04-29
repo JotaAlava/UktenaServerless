@@ -150,7 +150,10 @@
     <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js'></script>
     <script>
-        var lock;
+        var lock,
+                url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
+                utcOffset = new Date().getTimezoneOffset() / 60;
+
         document.addEventListener('DOMContentLoaded', function (event) {
             var app = new Vue({
                 el: '#app',
@@ -230,12 +233,11 @@
                         this.timeLeft = newTime;
                     },
                     getAllTomatoes: function () {
-                        var url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
-                                token = this.profile.accessToken;
+                        var token = this.profile.accessToken;
 
                         if (token) {
                             $.ajax({
-                                url: url,
+                                url: url + '?o=' + utcOffset,
                                 method: 'GET',
                                 dataType: 'json',
                                 headers: {
@@ -260,12 +262,11 @@
                         }
                     },
                     createTomato: function (newTomato) {
-                        var url = 'https://6pku1utkul.execute-api.us-east-1.amazonaws.com/dev/tomato',
-                                token = this.profile.accessToken;
+                        var token = this.profile.accessToken;
 
                         if (token) {
                             $.ajax({
-                                url: url,
+                                url: url + '?o=' + utcOffset,
                                 method: 'POST',
                                 data: JSON.stringify({
                                     author: this.profile.email,
@@ -294,7 +295,7 @@
 
                         if (token) {
                             $.ajax({
-                                url: url + '/' + tomatoId,
+                                url: url + '/' + tomatoId + '?o=' + utcOffset,
                                 method: 'DELETE',
                                 headers: {
                                     'Content-Type': 'application/json',
