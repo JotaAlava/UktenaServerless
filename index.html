@@ -98,11 +98,14 @@
                                                 <div v-for='(ssvalue, sskey) in svalue'>
                                                     <div v-for='(sssvalue, ssskey) in ssvalue'>
                                                         <span>{{sssvalue.createdAt}}<br/>{{sssvalue.description}}</span>
-                                                        <button v-if='!isDeleting' type='button' class='btn btn-warning btn-xs small-font'
+                                                        <button v-if='!isDeleting' type='button'
+                                                                class='btn btn-warning btn-xs small-font'
                                                                 v-on:click='enableDelete'>Delete
                                                         </button>
-                                                        <button v-if='isDeleting' type='button' class='btn btn-danger btn-xs small-font'
-                                                                v-on:click='deleteTomato(sssvalue.id)'>Yes, I confirm a permanent delete.
+                                                        <button v-if='isDeleting' type='button'
+                                                                class='btn btn-danger btn-xs small-font'
+                                                                v-on:click='deleteTomato(sssvalue.id)'>Yes, I confirm a
+                                                            permanent delete.
                                                         </button>
                                                     </div>
                                                 </div>
