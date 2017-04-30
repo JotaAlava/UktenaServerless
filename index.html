@@ -97,15 +97,19 @@
                                             <div class='panel-body'>
                                                 <div v-for='(ssvalue, sskey) in svalue'>
                                                     <div v-for='(sssvalue, ssskey) in ssvalue'>
-                                                        <span>{{sssvalue.createdAt}}<br/>{{sssvalue.description}}</span>
-                                                        <button v-if='!isDeleting' type='button'
-                                                                class='btn btn-warning btn-xs small-font'
-                                                                v-on:click='enableDelete'>Delete
+                                                        <span>{{adjustUtcOffset(new Date(sssvalue.createdAt)).toLocaleTimeString()}}<br/>{{sssvalue.description}}</span>
+                                                        <button v-if='!isDeleting[sssvalue.id]' type='button'
+                                                                class='btn btn-warning btn-xs small-font pull-right'
+                                                                v-on:click='enableDelete(sssvalue.id)'>Delete
                                                         </button>
-                                                        <button v-if='isDeleting' type='button'
-                                                                class='btn btn-danger btn-xs small-font'
-                                                                v-on:click='deleteTomato(sssvalue.id)'>Yes, I confirm a
-                                                            permanent delete.
+                                                        <button v-if='isDeleting[sssvalue.id]' type='button'
+                                                                class='btn btn-danger btn-xs small-font pull-right'
+                                                                v-on:click='deleteTomato(sssvalue.id)'> I {{profile.name}} consent to an
+                                                            irreversible delete.
+                                                        </button>
+                                                        <button v-if='isDeleting[sssvalue.id]' type='button'
+                                                                class='btn btn-success btn-xs small-font pull-right'
+                                                                v-on:click='disableDelete(sssvalue.id)'>Abort! Abort!
                                                         </button>
                                                     </div>
                                                 </div>
@@ -183,7 +187,7 @@
                     shortBreak: 300000,
                     longBreak: 900000,
                     isRunning: false,
-                    isDeleting: false,
+                    isDeleting: {},
                     tomatoes: undefined,
                     newTomato: undefined,
                     profile: undefined
@@ -226,6 +230,7 @@
                         this.isRunning = false;
                     },
                     setTimerLength: function (newTime) {
+                        this.stopTimer();
                         this.timeLeft = newTime;
                         runTimer();
                     },
@@ -310,11 +315,15 @@
                             });
                         }
                     },
-                    enableDelete: function () {
-                        this.isDeleting = true;
+                    enableDelete: function (id) {
+                        Vue.set(this.isDeleting, id, true);
                     },
-                    disableDelete: function () {
-                        this.isDeleting = false;
+                    disableDelete: function (id) {
+                        Vue.set(this.isDeleting, id, false);
+                    },
+                    adjustUtcOffset: function (date) {
+                        date.setTime(date.getTime() + (utcOffset * 60 * 60 * 1000));
+                        return date;
                     }
                 }
             });

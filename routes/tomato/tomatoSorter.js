@@ -2,18 +2,39 @@
  * Created by Jose on 4/22/2017.
  */
 var _ = require('underscore'),
+  // Basically, figure out if east of greenwich... if so subtract instead of adding.
+  resolveOffsetSign = function (offsetInHours) {
+    var result = offsetInHours;
+
+    if (offsetInHours > 0) {
+      result = offsetInHours * -1;
+    }
+
+    return result;
+  },
+  addHours = function(date, hoursToAdd) {
+    date.setTime(date.getTime() + (hoursToAdd*60*60*1000));
+    return date;
+  },
   sortByDate = function (a, b) {
     // Turn your strings into dates, and then subtract them
     // to get a value that is either negative, positive, or zero.
     return new Date(b.createdAt) - new Date(a.createdAt);
   };
 
+
 module.exports = function tomatoSorter(data, options) {
+  var offsetInHours = options.utcOffset;
   var itemsAsArray = data.Items.length === 1 ? [data.Items[0].attrs] : _.map(data.Items, function (val, key, list) {
+    var targetTime = new Date(val.attrs.createdAt);
+
+    // Massage dates to account for client's timezone...
+    var hoursToAdd = resolveOffsetSign(offsetInHours);
+    val.attrs.createdAt = addHours(targetTime, hoursToAdd).toISOString();
+
     return val.attrs;
   });
 
-  console.log('utc offset: ' + options.utcOffset);
 
   // Group by date
   var groupedItems = _.groupBy(itemsAsArray, function (item, val) {
