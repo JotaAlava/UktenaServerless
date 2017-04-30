@@ -2,7 +2,7 @@
  * Created by Jose on 4/22/2017.
  */
 var _ = require('underscore'),
-  // Basically, figure out if east of greenwich... if so subtract instead of adding.
+// Basically, figure out if east of greenwich... if so subtract instead of adding.
   resolveOffsetSign = function (offsetInHours) {
     var result = offsetInHours;
 
@@ -12,8 +12,8 @@ var _ = require('underscore'),
 
     return result;
   },
-  addHours = function(date, hoursToAdd) {
-    date.setTime(date.getTime() + (hoursToAdd*60*60*1000));
+  addHours = function (date, hoursToAdd) {
+    date.setTime(date.getTime() + (hoursToAdd * 60 * 60 * 1000));
     return date;
   },
   sortByDate = function (a, b) {
@@ -24,8 +24,16 @@ var _ = require('underscore'),
 
 
 module.exports = function tomatoSorter(data, options) {
-  var offsetInHours = options.utcOffset;
-  var itemsAsArray = data.Items.length === 1 ? [data.Items[0].attrs] : _.map(data.Items, function (val, key, list) {
+  var offsetInHours = options.utcOffset,
+    dataToMapOver = [];
+
+  if (data.Items.length === 1) {
+    dataToMapOver = [data.Items[0]];
+  } else {
+    dataToMapOver = data.Items;
+  }
+
+  var itemsAsArray = _.map(dataToMapOver, function (val, key, list) {
     var targetTime = new Date(val.attrs.createdAt);
 
     // Massage dates to account for client's timezone...
@@ -34,7 +42,6 @@ module.exports = function tomatoSorter(data, options) {
 
     return val.attrs;
   });
-
 
   // Group by date
   var groupedItems = _.groupBy(itemsAsArray, function (item, val) {
