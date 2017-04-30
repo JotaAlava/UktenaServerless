@@ -89,7 +89,7 @@
                                         <div class='panel-heading'>
                                             <h4 class='panel-title'>
                                                 <a data-toggle='collapse' data-parent='#accordion'
-                                                   v-bind:href='"#"+ new Date(Object.keys(svalue)[0]).getTime()'>{{Object.keys(svalue)[0]}}</a>
+                                                   v-bind:href='"#"+ new Date(Object.keys(svalue)[0]).getTime()'>{{Object.keys(svalue)[0]}}<strong class="pull-right">{{svalue[Object.keys(svalue)[0]].length}}</strong></a>
                                             </h4>
                                         </div>
                                         <div v-bind:id='new Date(Object.keys(svalue)[0]).getTime()'
@@ -221,7 +221,7 @@
                         this.stopTimer();
                         this.timeLeft = this.fullSessionLength;
 
-                        this.timeoutId = runTimer();
+                        this.timeoutId = runTimer(this);
 
                         this.isRunning = true;
                     },
@@ -233,7 +233,7 @@
                     setTimerLength: function (newTime) {
                         this.stopTimer();
                         this.timeLeft = newTime;
-                        runTimer();
+                        runTimer(this);
                     },
                     getAllTomatoes: function () {
                         var token = this.profile.accessToken;
@@ -329,7 +329,7 @@
                 }
             });
 
-            function runTimer() {
+            function runTimer(app) {
                 return setInterval(function () {
                     app.timeLeft = app.timeLeft - 1000;
 
