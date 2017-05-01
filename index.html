@@ -233,7 +233,7 @@
                     setTimerLength: function (newTime) {
                         this.stopTimer();
                         this.timeLeft = newTime;
-                        runTimer(this);
+                        this.timeoutId = runTimer(this);
                     },
                     getAllTomatoes: function () {
                         var token = this.profile.accessToken;
